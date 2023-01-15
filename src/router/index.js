@@ -2,6 +2,10 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Products from '../views/Products.vue'
+import Signin from '../views/Signin.vue'
+import Cart from '../views/Cart.vue'
+import Order from '../views/Order.vue'
+
 
 Vue.use(VueRouter)
 
@@ -15,6 +19,28 @@ const routes = [
     path: '/products',
     name: 'products',
     component: Products
+  },
+  {
+    path: '/products/:id',
+    name: 'product',
+    component: () => import('../views/Product.vue')
+  },
+  {
+    path: '/signin',
+    name: 'sign-in',
+    component: Signin
+
+  },
+  {
+    path:'/cart',
+    name:'cart',
+    component: Cart
+
+  },
+  {
+    path:'/order',
+    name: 'order',
+    component: Order
   },
   {
     path: '/about',
