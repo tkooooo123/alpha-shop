@@ -1,20 +1,20 @@
 <template>
      <div class="cartList-wrapper mt-5" v-if="stepper === 1">
         <div class="cartItem-card" v-for="cartItem in cartListItems" :key="cartItem.id">
-          <img :src="cartItem.image" alt="" />
+          <img :src="cartItem.cartProducts.image" alt="" />
           <div class="cartItem-card-info">
-            <div class="cartItem-card-info-name mt-3">{{ cartItem.name }}</div>
+            <div class="cartItem-card-info-name mt-3">{{ cartItem.cartProducts.name }}</div>
             <div class="cartItem-card-info-quantity">
               <div class="minus-btn" @click.prevent.stop="subQuantity(cartItem)">
                 -
               </div>
-              <div class="quantity">{{ cartItem.quantity }}</div>
+              <div class="quantity">{{ cartItem.cartProducts.CartItem.quantity }}</div>
               <div class="plus-btn" @click.prevent.stop="addQuantity(cartItem)">
                 +
               </div>
             </div>
             <div class="cartItem-card-info-price">
-              NT$ {{ cartItem.quantity * cartItem.price }}
+              NT$ {{ cartItem.cartProducts.CartItem.quantity * cartItem.cartProducts.price }}
             </div>
           </div>
           <button class="btn cartListItem-delete">
@@ -37,11 +37,11 @@ export default {
     },
     methods: {
         addQuantity(cartItem) {
-            cartItem.quantity++;
+          cartItem.cartProducts.CartItem.quantity++;
     },
     subQuantity(cartItem) {
-      if (cartItem.quantity > 1) {
-        cartItem.quantity--;
+      if (cartItem.cartProducts.CartItem.quantity > 1) {
+        cartItem.cartProducts.CartItem.quantity--;
       }
     },
     }

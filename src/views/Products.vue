@@ -30,6 +30,7 @@
         :total-page="totalPage"
         :previous-page="previousPage"
         :next-page="nextPage"
+        :categoryId="categoryId"
       />
   </div>
 </template>
@@ -37,6 +38,7 @@
 <script>
 import ProductsPagination from "../components/ProductsPagination.vue";
 import ProductsApi from "../apis/products";
+import { Toast } from './../utils/helpers'
 
 export default {
   components: {
@@ -46,6 +48,7 @@ export default {
     return {
       products: [],
       categories: [],
+      categoryId:'',
       currentPage: 1,
       totalPage: 1,
       previousPage: -1,
@@ -53,23 +56,45 @@ export default {
     };
   },
   created() {
-    this.fetchProducts();
+    const { page = '', categoryId = '' } = this.$route.query
+    this.fetchProducts({
+        queryPage: page,
+        queryCategoryId: categoryId
+    });
+  },
+  beforeRouteUpdate (to, from, next) {
+    const { page='', categoryId='' } = to.query
+    this.fetchProducts({ queryPage: page, queryCategoryId: categoryId })
+    next()
   },
   methods: {
-    async fetchProducts() {
+    async fetchProducts({  queryPage, queryCategoryId }) {
       try {
-        const response = await ProductsApi.getProducts();
-        console.log("response", response.data);
+        const response = await ProductsApi.getProducts({
+            page: queryPage,
+            categoryId: queryCategoryId
+        });
+        console.log("response", response);
+        const { data } = response
+        if (response.status === "error") {
+          throw new Error(data.message);
+        }
+       
 
-        const { products, categories, pagination } = response.data;
+        const { products, categories, categoryId, pagination } = data;
         this.products = products;
         this.categories = categories;
-        const { page, totalPage, prev, next } = pagination;
-        this.currentPage = page;
+        this.categoryId = categoryId
+        const { currentPage, totalPage, prev, next } = pagination;
+        this.currentPage = currentPage;
         this.totalPage = totalPage;
         this.previousPage = prev;
         this.nextPage = next;
       } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法取得產品資料，請稍後再試'
+        })
         console.log("error", error);
       }
     },
