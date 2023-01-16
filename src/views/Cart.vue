@@ -4,7 +4,7 @@
     
     <div class="cart-wrapper">
       <CartListItem 
-      :cartListItems="carts"
+      :cartListItems="cartItems"
       :stepper="stepper"
       />
 
@@ -35,7 +35,7 @@ import CartListItem from '../components/CartListItem.vue'
 import SubTotal from '../components/subTotal.vue'
 import CheckoutForm from '../components/CheckoutForm.vue'
 import CartApi from '../apis/cart'
-
+import OrderApi from '../apis/order'
 
 export default {
   
@@ -49,6 +49,7 @@ export default {
     return {
       cartId: 0,
       carts: [],
+      cartItems: [],
       stepper: 1,
     };
   },
@@ -65,9 +66,14 @@ export default {
           cartId: cartId
         }) 
         console.log('response', response)
-        
+      
         const { data } = response
+        
+        console.log(data)
         this.carts = data.carts
+        this.carts.forEach(item => {
+         this.cartItems.push(item.cartProducts)
+      });
        
       } catch (error) {
         console.log(error)
@@ -77,7 +83,13 @@ export default {
     handleStepBtn(stepper) {
       this.stepper = stepper
     },
-    handleSubmit() {
+    async handleSubmit() {
+      try {
+        const response = await OrderApi.postOrder()
+        console.log('response', response)
+      } catch (error) {
+        console.log(error)
+      }
       if(this.stepper > 1) {
         this.stepper++
       }
@@ -93,8 +105,8 @@ export default {
   computed: {
     totalPrice() {
       let total = 0;
-      this.carts.forEach((item) => {
-        total += item.cartProducts.CartItem.quantity * item.cartProducts.price;
+      this.cartItems.forEach((item) => {
+        total += item.CartItem.quantity * item.price;
       });
       return total;
     },

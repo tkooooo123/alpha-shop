@@ -7,5 +7,13 @@ export default {
     },
     getCart ({ cartId }) {
         return apiHelper.get(`/carts?cartId=${cartId}`)
-    }
+    },
+    addCartItem({id}) {
+        return apiHelper.post(`/carts/cartItem/${id}/add`)
+    },
+    subCartItem({id}) {
+        return apiHelper.post(`/carts/cartItem/${id}/sub`)
+    },deleteCartItem({id}) {
+        return apiHelper.delete(`/carts/cartItem/${id}/delete`)
+    },
 }
