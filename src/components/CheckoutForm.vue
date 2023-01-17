@@ -58,55 +58,113 @@
         />
       </span>
     </div>
+    <input type="hidden" name="userId" :value="userId"  />
+    <input type="hidden" name="cartId" :value="cartId" />
+    <input type="hidden" name="amount" :value="amount" />
+    <input type="hidden" name="shipping_status" value="0" />
+    <input type="hidden" name="payment_status" value="0" />
     <button type="submit" class="next-btn">送出資料</button>
   </form>
 </template>
 
 <script>
+import OrderApi from '../apis/order'
+import { Toast } from '../utils/helpers'
+import { mapState } from 'vuex';
+
 export default {
   props: {
     initialStepper: {
       type: Number,
       required: true,
     },
+    totalPrice: {
+      type: Number,
+      required: true,
+    },
+   
   },
   data() {
     return {
-        name: "",
+      userId: '',
+      name: "",
       email: "",
       phone: "",
       address: "",
-      stepper: this.initialStepper
+      shipping_status: 0,
+      payment_status: 0,
+      cartId: "",
+      amount: this.totalPrice,
+      stepper: this.initialStepper,
+      orderId: ''
     };
+  },
+  created() {
+    this.cartId = localStorage.getItem('cartId')
+    this.userId = this.currentUser.id
   },
   methods: {
     handleStepper(stepper) {
-        this.stepper = this.initialStepper
+      this.stepper = this.initialStepper;
       if (this.stepper < 3) {
         this.stepper++;
         stepper = this.stepper;
       }
       this.$emit("click-step-btn", stepper);
     },
-    handleSubmit(stepper) {
-      if(this.stepper > 1) {
-        this.stepper++
-      }
-      stepper = this.stepper
-      this.$emit('click-step-btn', stepper)
-      const data = JSON.stringify({
-        name: this.name,
-        email: this.email,
+    async handleSubmit(stepper) {
+      try {
+        
+        const response = await OrderApi.postOrder({
+          userId: this.userId,
+          name: this.name,
+          email: this.email,
         phone: this.phone,
         address: this.address,
-      });
-      console.log("data", data);
+        cartId: this.cartId,
+        amount: this.amount,
+        shipping_status: this.shipping_status,
+        payment_status: this.payment_status
+        })
+        console.log('response', response)
+        const { data } = response
+        if (response.status === "error") {
+          throw new Error(data.message);
+        }
+        this.orderId = data.order.id
+        const gotOrderId = this.orderId
+        this.$emit('get-order-id', gotOrderId)
+
+
+        if (this.stepper > 1) {
+        this.stepper++;
+      }
+      stepper = this.stepper;
+      this.$emit("click-step-btn", stepper);
+      } catch (error) {
+        Toast.fire({
+          icon:'error',
+          title: '...'
+        })
+        console.log(error)
+      }
+      
+      
     },
   },
   watch: {
-    initialStepper: function() {
-        this.stepper = this.initialStepper
+    initialStepper: function () {
+      this.stepper = this.initialStepper;
+    },
+    totalPrice: function() {
+      this.amount = this.totalPrice
+    },
+    currentUser: function() {
+      this.userId = this.currentUser.id
     }
+  },
+  computed: {
+    ...mapState(['currentUser','isAuthenticated'])
   }
 };
 </script>

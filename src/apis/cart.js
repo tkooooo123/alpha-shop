@@ -1,19 +1,29 @@
 import { apiHelper } from "../utils/helpers";
-
+const getToken = () => localStorage.getItem('token')
 
 export default {
     postCart({ productId, quantity, cartId }) {
-        return apiHelper.post('/carts', { productId, quantity, cartId })
+        return apiHelper.post('/carts', { productId, quantity, cartId }, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
     },
     getCart ({ cartId }) {
-        return apiHelper.get(`/carts?cartId=${cartId}`)
+        return apiHelper.get(`/carts?cartId=${cartId}`, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
     },
     addCartItem({id}) {
-        return apiHelper.post(`/carts/cartItem/${id}/add`)
+        return apiHelper.post(`/carts/cartItem/${id}/add`, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
     },
     subCartItem({id}) {
-        return apiHelper.post(`/carts/cartItem/${id}/sub`)
+        return apiHelper.post(`/carts/cartItem/${id}/sub`, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
     },deleteCartItem({id}) {
-        return apiHelper.delete(`/carts/cartItem/${id}/delete`)
+        return apiHelper.delete(`/carts/cartItem/${id}/delete`, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
     },
 }
