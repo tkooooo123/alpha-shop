@@ -5,6 +5,7 @@ import Products from '../views/Products.vue'
 import Signin from '../views/Signin.vue'
 import Cart from '../views/Cart.vue'
 import Order from '../views/Order.vue'
+import store from './../store'
 
 
 Vue.use(VueRouter)
@@ -54,6 +55,11 @@ const routes = [
 
 const router = new VueRouter({
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  store.dispatch('fetchCurrentUser')
+  next()
 })
 
 export default router
