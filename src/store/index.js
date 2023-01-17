@@ -10,7 +10,7 @@ export default new Vuex.Store({
       id: -1,
       name: '',
       email: '',
-      isAdmin: false
+      role: ''
     },
     isAuthenticated: false
   },
@@ -34,13 +34,13 @@ export default new Vuex.Store({
     async fetchCurrentUser({ commit }){
       try {
         const  { data } = await authorizationApi.getCurrentUser()
-        console.log('data', data)
-        const { id, name, email, isAdmin } = data
+        console.log('data', data.currentUser)
+        const { id, name, email, role } = data.currentUser
         commit('setCurrentUser', {
           id,
           name, 
           email,
-          isAdmin
+          role
         })
       } catch (error) {
         console.log('error', error.message)
