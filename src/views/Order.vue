@@ -11,7 +11,7 @@
 <script>
 import OrderApi from "../apis/order";
 import OrderListCard from "../components/OrderListCard.vue";
-import modal from "bootstrap/js/dist/modal";
+
 
 export default {
   components: {
@@ -20,13 +20,11 @@ export default {
   data() {
     return {
       orders: [],
-      modal: "",
     };
   },
   created() {
     this.fetchOrders();
   },
-
   methods: {
     async fetchOrders() {
       try {
@@ -37,19 +35,6 @@ export default {
       } catch (error) {
         console.log(error);
       }
-    },
-    handleSwitch1(e) {
-      e.target.parentNode.style.display = "none";
-      e.target.parentNode.nextElementSibling.style.display = "block";
-    },
-    handleSwitch2(e) {
-      e.target.parentNode.style.display = "none";
-      e.target.parentNode.previousElementSibling.style.display = "block";
-    },
-    showModal() {
-      const orderModal = new modal(document.getElementById("orderModal"));
-      console.log(orderModal);
-      orderModal.show();
     },
   },
 };
@@ -79,8 +64,8 @@ export default {
       font-size: 0.7rem;
       border-left: 1px solid #747373;
     }
-    &-item-sn {
-      width: 20%;
+    &-item-id {
+      width: 18%;
     }
     &-item-date {
       width: 10%;
@@ -123,7 +108,6 @@ export default {
       }
     }
   }
-
   .info-table {
     margin: auto;
     width: 90%;
@@ -207,6 +191,33 @@ export default {
   h5 {
     margin: 0.3rem;
     font-weight: 550;
+  }
+}
+.modal-footer {
+  margin: auto;
+  .prev-btn {
+    margin: auto 1rem;
+    padding: 0.3rem 0.5rem;
+    background-color: rgb(200, 56, 56);
+    color: #ffffff;
+    border-radius: 5px;
+    width: 4rem;
+    font-size: 1.1rem;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  .next-btn {
+    margin: auto 1rem;
+    padding: 0.3rem 0.5rem;
+    background-color: #00457c;
+    color: #ffffff;
+    border-radius: 5px;
+    width: 4rem;
+    font-size: 1.1rem;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 }
 </style>

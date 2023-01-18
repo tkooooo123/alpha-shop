@@ -32,5 +32,9 @@ export default {
             headers: { Authorization: `Bearer ${getToken()}` }
         })
     },
-   
+    getPayment ({ orderId}) {
+        return apiHelper.get(`/orders/${orderId}/payment`, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
+    },
 }

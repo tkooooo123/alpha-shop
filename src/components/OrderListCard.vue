@@ -14,19 +14,21 @@
       </thead>
       <tbody>
         <tr>
-          <td class="orderList-table-item-sn">{{ order.sn }}</td>
+          <td class="orderList-table-item-id">{{ order.id }}</td>
           <td class="orderList-table-item-date">{{ order.createdAt }}</td>
           <td class="orderList-table-item-amount">NT$ {{ order.amount }}</td>
           <td class="orderList-table-item-payment">
-            <router-link
-              class="orderList-table-item-payment-btn"
-              to=""
-              v-if="order.payment_status === '0'"
-            >
-              前往付款</router-link
-            >
+            
+            <GetPaymentModal 
+            :initial-order="order"
+            v-if="order.payment_status === '0'"
+            />
+
             <div v-else-if="order.payment_status === '1'">付款完成</div>
             <div v-else>已取消</div>
+              
+
+        
           </td>
           <td class="orderList-table-item-shipment">
             <div v-if="order.shipping_status === '0'">未配送</div>
@@ -34,45 +36,9 @@
             <div v-else>已取消</div>
           </td>
           <td class="orderList-table-item-others">
-            <!-- Button trigger modal -->
-            <button
-              class="orderList-table-item-others-btn-show"
-              type="button"
-              data-bs-toggle="modal"
-              data-bs-target="#orderModal"
-              @click="showModal"
-            >
-              詳
-            </button>
-            <!-- Modal -->
-            <div
-              class="modal fade"
-              id="orderModal"
-              tabindex="-1"
-              aria-labelledby="exampleModalLabel"
-              aria-hidden="true"
-            >
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h2 class="modal-title" id="exampleModalLabel">
-                      訂單編號 {{ order.sn }}
-                    </h2>
-                    <button class="btn orderModal-close"
-                    @click="closeModal"
-                    >
-                      <i class="fa fa-times" aria-hidden="true"></i>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <h4>其他資訊如下：</h4>
-                    <h5>收貨人姓名：{{ order.name }}</h5>
-                    <h5>收貨人電話：{{ order.phone }}</h5>
-                    <h5>收貨人地址：{{ order.address }}</h5>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <OrderModal 
+            :initial-order="order"/>
+            
           </td>
           <td class="orderList-table-item-cancel">
             <div
@@ -142,9 +108,15 @@
 
 <script>
 import OrderApi from "../apis/order";
-import modal from "bootstrap/js/dist/modal";
+import OrderModal from"../components/OrderModal.vue"
+import GetPaymentModal from "../components/GetPaymentModal.vue"
 
 export default {
+    components: {
+        OrderModal,
+        GetPaymentModal
+
+    },
   props: {
     initialOrder: {
       type: Object,
@@ -154,13 +126,14 @@ export default {
   data() {
     return {
       order: this.initialOrder,
+      orderId: this.initialOrder.id,
       modal: null,
+      tradeInfo: [],
     };
   },
   created() {
     this.fetchOrders();
   },
-
   methods: {
     async fetchOrders() {
       try {
@@ -180,13 +153,6 @@ export default {
       e.target.parentNode.style.display = "none";
       e.target.parentNode.previousElementSibling.style.display = "block";
     },
-    showModal(e) {
-      this.modal = new modal(e.target.nextElementSibling);
-      this.modal.show();
-    },
-    closeModal() {
-        this.modal.hide()
-    }
   },
 };
 </script>
