@@ -6,6 +6,7 @@ import Signin from '../views/Signin.vue'
 import Cart from '../views/Cart.vue'
 import Order from '../views/Order.vue'
 import store from './../store'
+import AdminDashboard from '../views/AdminDashboard.vue'
 
 
 Vue.use(VueRouter)
@@ -42,6 +43,28 @@ const routes = [
     path:'/order',
     name: 'order',
     component: Order
+  },
+  {
+    path: '/admin',
+    name: 'admin-dashboard',
+    component: AdminDashboard,
+    children: [
+      {
+        path: '/admin/products',
+        name:'admin-products',
+        component: () => import('../views/dashboard/AdminProducts.vue')
+      },
+      {
+        path: '/admin/categories',
+        name:'admin-categories',
+        component: () => import('../views/dashboard/AdminCategories.vue')
+      },
+      {
+        path: '/admin/orders',
+        name:'admin-orders',
+        component: () => import('../views/dashboard/AdminOrders.vue')
+      },
+    ]
   },
   {
     path: '/about',
