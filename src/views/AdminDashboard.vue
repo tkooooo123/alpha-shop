@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="dashboard-wrapper">
         <div class="sidebar-wrapper">
             <div class="list-group">
                 <router-link to="/admin/categories" class="list-group-item">分類列表</router-link>
@@ -19,7 +19,7 @@ export default {
 }
 </script>
 <style lang="scss">
-.wrapper {
+.dashboard-wrapper {
     display: flex;
   
     padding: 0;
