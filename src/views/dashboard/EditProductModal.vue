@@ -229,6 +229,7 @@ export default {
         if (response.status === "error") {
           throw new Error(response.data.message);
         }
+        this.$emit('edit')
         this.modal.hide();
       } catch (error) {
         Toast.fire({

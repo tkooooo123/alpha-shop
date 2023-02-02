@@ -215,6 +215,7 @@ import { Toast } from "../../utils/helpers";
           if (response.status === "error") {
             throw new Error(response.data.message)
           }
+          this.$emit('create')
           this.modal.hide();
         } catch (error) {
           Toast.fire({

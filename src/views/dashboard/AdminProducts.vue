@@ -1,10 +1,9 @@
 <template>
   <div class="products-wrapper">
-    <CreateProductModal 
-    :initial-categories="categories"
+    <CreateProductModal :initial-categories="categories"
+    @create="handleEmit"
     />
-    
-    
+
     <div class="productList mt-4">
       <table class="productList-table">
         <thead>
@@ -17,8 +16,7 @@
           </tr>
         </thead>
 
-        <tbody v-for="product in products" :key="product.id"
-        :id="product.id">
+        <tbody v-for="product in products" :key="product.id" :id="product.id">
           <tr>
             <td class="img-wrapper">
               <img :src="product.image" alt="" />
@@ -30,69 +28,108 @@
             <td class="productList-item-name">{{ product.name }}</td>
             <td class="productList-item-price">NT$ {{ product.price }}</td>
             <td class="productList-item-btn">
-                <EditProductModal
+              <EditProductModal
                 :initial-product-id="product.id"
                 :initial-categories="categories"
-                />
+                @edit="handleEmit"
+              />
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    <ProductsPagination
+        :current-page="currentPage"
+        :total-page="totalPage"
+        :previous-page="previousPage"
+        :next-page="nextPage"
+        :categoryId="categoryId"
+      />
   </div>
 </template>
 
 <script>
 import AdminApi from "../../apis/admin";
 import { Toast } from "../../utils/helpers";
-import EditProductModal from "../dashboard/EditProductModal.vue"
-import CreateProductModal from "../dashboard/CreateProductModal.vue"
+import EditProductModal from "../dashboard/EditProductModal.vue";
+import CreateProductModal from "../dashboard/CreateProductModal.vue";
+import ProductsPagination from "../../components/ProductsPagination.vue"
 export default {
-    components: {
-        EditProductModal,
-        CreateProductModal
-    },
+  components: {
+    EditProductModal,
+    CreateProductModal,
+    ProductsPagination
+  },
   data() {
     return {
       products: [],
-      categories: []
+      categories: [],
+      updated: false,
+      categoryId: '',
+      currentPage: 1,
+      totalPage: 1,
+      previousPage: -1,
+      nextPage: -1,
     };
   },
   created() {
-    this.fetchProducts();
+    const { page = '', categoryId = '' } = this.$route.query
+    this.fetchProducts({
+        queryPage: page,
+        queryCategoryId: categoryId
+    });
+  },
+  beforeRouteUpdate (to, from, next) {
+    const { page='', categoryId='' } = to.query
+    this.fetchProducts({ queryPage: page, queryCategoryId: categoryId })
+    next()
   },
   methods: {
-    async fetchProducts() {
+    async fetchProducts({ queryPage, queryCategoryId}) {
       try {
-        const response = await AdminApi.getProducts();
+        const response = await AdminApi.getProducts({
+          page: queryPage,
+            categoryId: queryCategoryId
+        });
         console.log("response", response);
         const { data } = response;
-        if( response.status ===" error") {
-          throw new Error(data.message)
+        if (response.status === " error") {
+          throw new Error(data.message);
         }
+        console.log(data.pagination )
+        const { currentPage, totalPage, next, prev } = data.pagination
+        this.currentPage = currentPage
+        this.totalPage = totalPage
+        this.nextPage = next
+        this.previousPage = prev
 
         this.products = data.products;
-        this.categories = data.categories
+        this.categories = data.categories;
       } catch (error) {
         Toast.fire({
           icon: "error",
-          title: "無法取得產品資料，請稍後在試"
-        })
+          title: "無法取得產品資料，請稍後在試",
+        });
         console.log(error);
       }
     },
-    
-    
+    handleEmit() {
+      this.fetchProducts()
+    }
   },
+  
 };
 </script>
 
 <style lang="scss">
 .products-wrapper {
-    margin: 2rem 0;
-    .create-wrapper {
-      text-align: end;
-      .product-create-btn {
+  margin: 2rem 0;
+  @media (min-width: 800px) {
+    margin: 2rem 20%;
+  }
+  .create-wrapper {
+    text-align: end;
+    .product-create-btn {
       padding: 0.3rem 0.5rem;
       background-color: #00457c;
       color: #ffffff;
@@ -103,9 +140,8 @@ export default {
         opacity: 0.8;
       }
     }
-    }
-  
-   
+  }
+
   .productList {
     margin: auto;
     border-radius: 10px;
@@ -154,7 +190,7 @@ export default {
       }
     }
     .productList-table tbody:last-child {
-        border-bottom: none;
+      border-bottom: none;
     }
   }
 }
