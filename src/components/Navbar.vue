@@ -175,7 +175,10 @@ export default {
   },
   watch: {
     $route() {
-      this.collapse.hide();
+      if(this.collapse) {
+        this.collapse.hide();
+      }
+ 
       this.keyword = "";
     },
   },
@@ -361,12 +364,14 @@ export default {
   width: 100%;
   height: 100%;
   top: 0;
+  z-index: 999;
 
   .expand-wrapper {
     margin: auto;
     width: 70%;
     min-height: 100%;
     background: #fff;
+  
 
     .expand-item-wrapper {
       padding: 1rem;

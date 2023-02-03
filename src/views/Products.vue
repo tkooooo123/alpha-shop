@@ -7,12 +7,16 @@
           <router-link
             :to="{ name: 'products', query: { categoryId: category.id } }"
           >
+          <i class="fas fa-angle-left"></i>
             {{ category.name }}
           </router-link>
         </li>
       </ul>
     </div>
     <div class="main-wrapper">
+      <ProductSwiper 
+      :products="products"
+      />
       <div class="title">熱賣商品</div>
       <div class="cards-wrapper">
         <div class="product-card" v-for="product in products" :key="product.id">
@@ -31,6 +35,7 @@
         :previous-page="previousPage"
         :next-page="nextPage"
         :categoryId="categoryId"
+  
       />
   </div>
 </template>
@@ -39,11 +44,15 @@
 import ProductsPagination from "../components/ProductsPagination.vue";
 import ProductsApi from "../apis/products";
 import { Toast } from './../utils/helpers'
+import ProductSwiper from "../components/ProductSwiper.vue";
+
 
 export default {
   components: {
     ProductsPagination,
+    ProductSwiper
   },
+
   data() {
     return {
       products: [],
@@ -53,6 +62,8 @@ export default {
       totalPage: 1,
       previousPage: -1,
       nextPage: -1,
+
+      
     };
   },
   created() {
@@ -70,16 +81,16 @@ export default {
   methods: {
     async fetchProducts({  queryPage, queryCategoryId }) {
       try {
+  
         const response = await ProductsApi.getProducts({
             page: queryPage,
-            categoryId: queryCategoryId
+            categoryId: queryCategoryId,
         });
         console.log("response", response);
         const { data } = response
         if (response.status === "error") {
           throw new Error(data.message);
         }
-       
 
         const { products, categories, categoryId, pagination } = data;
         this.products = products;
@@ -90,6 +101,7 @@ export default {
         this.totalPage = totalPage;
         this.previousPage = prev;
         this.nextPage = next;
+      
       } catch (error) {
         Toast.fire({
           icon: 'error',
@@ -98,7 +110,8 @@ export default {
         console.log("error", error);
       }
     },
-  },
+  }
+ 
 };
 </script>
 
@@ -114,7 +127,7 @@ export default {
     display: none;
     @media (min-width: 768px) {
       display: block;
-      width: 30%;
+      width: 25%;
       .title {
         margin-top: 1rem;
         padding-right: 1rem;
@@ -127,7 +140,7 @@ export default {
         margin: auto;
         padding-left: 0.5rem;
         line-height: 40px;
-        width: 5rem;
+        width: 6rem;
         font-weight: 600;
         cursor: pointer;
         border-top: 1px solid #bbb9b9;
@@ -141,7 +154,7 @@ export default {
     width: 100%;
     padding: 1rem;
     @media (min-width: 768px) {
-        width: 70%;
+        width: 75%;
     }
     .title {
       text-align: left;
@@ -154,14 +167,14 @@ export default {
       flex-flow: row wrap;
 
       .product-card {
-        width: 45%;
-        margin: 1rem 0.7rem;
+        width: 40%;
+        margin: 1rem ;
 
         @media (min-width: 900px) {
           width: 30%;
         }
         @media (min-width: 1200px) {
-          width: 22%;
+          width: 20%;
         }
       }
       .product-card:hover {
