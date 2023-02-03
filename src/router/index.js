@@ -5,6 +5,7 @@ import Products from '../views/Products.vue'
 import Signin from '../views/Signin.vue'
 import Cart from '../views/Cart.vue'
 import Order from '../views/Order.vue'
+import Search from '../views/Search.vue'
 import store from './../store'
 import AdminDashboard from '../views/AdminDashboard.vue'
 
@@ -34,15 +35,21 @@ const routes = [
 
   },
   {
-    path:'/cart',
-    name:'cart',
+    path: '/cart',
+    name: 'cart',
     component: Cart
 
   },
   {
-    path:'/order',
+    path: '/order',
     name: 'order',
     component: Order
+  },
+  {
+    path: '/search',
+    name: 'search',
+    component: Search
+
   },
   {
     path: '/admin',
@@ -51,17 +58,17 @@ const routes = [
     children: [
       {
         path: '/admin/products',
-        name:'admin-products',
+        name: 'admin-products',
         component: () => import('../views/dashboard/AdminProducts.vue')
       },
       {
         path: '/admin/categories',
-        name:'admin-categories',
+        name: 'admin-categories',
         component: () => import('../views/dashboard/AdminCategories.vue')
       },
       {
         path: '/admin/orders',
-        name:'admin-orders',
+        name: 'admin-orders',
         component: () => import('../views/dashboard/AdminOrders.vue')
       },
     ]

@@ -1,7 +1,7 @@
 <template>
   <div class="nav-wrapper">
     <div class="navbar">
-      <div class="nav-brand" @click.prevent.stop="cancelChecked">
+      <div class="nav-brand" >
         <router-link to="/">
           <img
             class="logo-img"
@@ -10,85 +10,140 @@
           />
         </router-link>
       </div>
-      <div class="search-bar">
+      <div class="search-bar collapse" id="search-bar">
         <div class="input-wrapper d-flex">
+          <div class="input-icon">
+            <i class="fas fa-search"></i>
+          </div>
+
           <input
             type="text"
             class="form-control search-input"
             placeholder="請輸入關鍵字"
+            v-model.lazy="keyword"
+            @change="searchKeyword"
           />
           <button class="form-control btn-search">搜尋</button>
+          <button
+            class="close"
+            @click.prevent.stop="closeCollapse('search-bar')"
+          >
+            <i class="fa fa-times"></i>
+          </button>
         </div>
+        <div class="bottom" @click="closeCollapse('search-bar')"></div>
       </div>
       <div class="item-group d-flex">
-        <button class="btn-login" v-if="isAuthenticated"
-        @click="logout"
-        >登出</button>
-
-        <button  class="btn-login"
-        v-else>
-          <router-link to="/signin" class="routerLink"> 我要登入 </router-link>
+        <button class="btn-login" v-if="isAuthenticated" @click="logout">
+          登出
         </button>
 
-        <div class="btn-search">
-          <img src="https://imgpile.com/images/biezQo.png" alt="" />
-        </div>
-        <div class="cart-icon" @click.prevent.stop="cancelChecked">
-          <router-link to="/cart" class="routerLink">
-            <img src="https://imgpile.com/images/bieXPS.png" alt="" />
-          </router-link>
+        <button class="btn-login" v-else>
+          <router-link to="/signin" class="routerLink"> 我要登入 </router-link>
+        </button>
+        <button
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#search-bar"
+          @click.prevent.stop="showCollapse('search-bar')"
+        >
+          <i class="fas fa-search fa-lg">50%</i>
+        </button>
+
+        <div class="cart-icon" >
+          <button @click.prevent.stop="$router.push('/cart')">
+            <i class="fa fa-shopping-cart fa-lg">80%</i>
+          </button>
         </div>
 
         <label
           class="navbar-toggle-label"
-          for="navbar-toggle"
-          @click.prevent.stop="handleChecked"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbar-expand"
+          @click.prevent.stop="showCollapse('navbar-expand')"
         >
           <span class="hamburger"></span>
         </label>
       </div>
     </div>
-    <input
-      type="checkbox"
-      class="navbar-toggle"
-      id="navbar-toggle"
-      :checked="isChecked"
-    />
-    <div class="navbar-expand">
-      <div
-        class="expand-item-wrapper login"
-        @click.prevent.stop="handleChecked"
+    <div class="topList">
+      <router-link to="/products" class="router-link mr-3"
+        >所有分類</router-link
       >
-        <router-link to="/signin" class="expand-item"> 登入/註冊 </router-link>
+      <div v-for="category in categories" :key="category.id">
+        <router-link :to="`/products?categoryId=${category.id}`">{{
+          category.name
+        }}</router-link>
       </div>
-      <div class="category-group">
-        <div class="expand-item-wrapper" @click.prevent.stop="handleChecked">
-          <router-link to="/products" class="expand-item">所有分類</router-link>
+    </div>
+
+    <div class="navbar-expand-collapse collapse" id="navbar-expand">
+      <div class="expand-wrapper">
+        <div class="expand-item-wrapper login" v-if="!isAuthenticated">
+          <router-link to="/signin" class="expand-item">
+            登入/註冊
+          </router-link>
         </div>
-        <div class="expand-item-wrapper">
-          <router-link to="" class="expand-item"> 食品 </router-link>
+        <div class="expand-item-wrapper logout" v-else>
+          <a  href="" class="expand-item" @click="logout"> 登出 </a>
         </div>
-        <div class="expand-item-wrapper">
-          <router-link to="" class="expand-item"> 休閒娛樂 </router-link>
-        </div>
-        <div class="expand-item-wrapper">
-          <router-link to="" class="expand-item"> 生活居家 </router-link>
+        <div class="category-group">
+          <div class="expand-item-wrapper" @click.prevent.stop="handleChecked">
+            <router-link to="/products" class="expand-item">
+              所有分類
+
+              <i class="fa fa-angle-right"></i>
+            </router-link>
+          </div>
+          <div class="category-list">
+            <div
+              class="expand-item-wrapper"
+              v-for="category in categories"
+              :key="category.id"
+            >
+              <router-link
+                :to="`/products?categoryId=${category.id}`"
+                class="expand-item"
+              >
+                {{ category.name }}
+                <i class="fa fa-angle-right"></i>
+              </router-link>
+            </div>
+          </div>
         </div>
       </div>
+      <div class="expand-bottom" @click.prevent.stop="closeCollapse"></div>
     </div>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
+import { Collapse } from "bootstrap";
+import ProductsApi from "../apis/products";
 
 export default {
   data() {
     return {
-      isChecked: false,
+      keyword: "",
+      collapse: null,
+      categories: [],
     };
   },
+  mounted() {
+    this.fetchCategories();
+  },
   methods: {
+    async fetchCategories() {
+      try {
+        console.log("123");
+        const response = await ProductsApi.getCategories();
+        console.log("response", response);
+        this.categories = response.data.categories;
+      } catch (error) {
+        console.log(error);
+      }
+    },
     handleChecked() {
       if (this.isChecked === true) {
         this.isChecked = false;
@@ -96,25 +151,40 @@ export default {
         this.isChecked = true;
       }
     },
-    cancelChecked() {
-      if (this.isChecked === true) {
-        this.isChecked = false;
-      }
+   
+    logout() {
+      this.$store.commit("revokeAuthentication");
+      this.$router.push("/signin");
     },
-    logout () {
-      console.log(1)
-      this.$store.commit('revokeAuthentication')
-      this.$router.push('/signin')
-    }
+    searchKeyword() {
+      console.log(this.keyword);
+      this.$router.push(`/search?key=${this.keyword}`);
+    },
+    showCollapse(id) {
+      console.log(document.getElementById(id));
+      this.collapse = new Collapse(document.getElementById(id));
+      console.log(this.collapse);
+      this.collapse.show();
+    },
+    closeCollapse() {
+      this.collapse.hide();
+    },
   },
   computed: {
     ...mapState(["currentUser", "isAuthenticated"]),
+  },
+  watch: {
+    $route() {
+      this.collapse.hide();
+      this.keyword = "";
+    },
   },
 };
 </script>
 
 <style lang="scss">
 .nav-wrapper {
+  position: relative;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.06);
 }
 .navbar {
@@ -126,29 +196,76 @@ export default {
   .nav-brand {
     position: absolute;
     top: 50%;
-    left: 20%;
+    left: 27%;
     transform: translate(-50%, -50%);
+    @media (min-width: 768px) {
+      left: 20%;
+    }
     .logo-img {
-      height: 2rem;
+      height: 1.8rem;
     }
   }
   .search-bar {
-    display: none;
-    height: 40px;
+    transition: all 0.3s ease-in-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+
+    z-index: 999;
+    .input-icon {
+      position: absolute;
+      top: 0;
+    }
+    .bottom {
+      position: fixed;
+      opacity: 0.7;
+      width: 100%;
+      height: 100%;
+      background: #747373;
+    }
+    .btn-search {
+      display: none;
+    }
+    .input-wrapper {
+      padding: 1rem;
+      background: #ffffff;
+    }
+
     .search-input {
       border-radius: 0;
+      margin-left: 1.5rem;
     }
 
     @media (min-width: 768px) {
       display: flex;
       position: absolute;
-      top: 25%;
+      height: 40px;
+      top: 0.3rem;
       left: 35%;
+      background-color: white;
+
+      z-index: 0;
+      .bottom {
+        display: none;
+      }
+      .input-icon {
+        display: none;
+      }
+      .search-input {
+        width: 70%;
+        margin-left: 0;
+      }
       .btn-search {
+        display: block;
         width: 70px;
         border-radius: 0;
         background: #00457c;
         color: #ffffff;
+      }
+      .close {
+        display: none;
       }
       .btn-search:hover {
         cursor: pointer;
@@ -190,7 +307,7 @@ export default {
     .navbar-toggle-label {
       display: flex;
       width: 25px;
-      margin-top: 6%;
+      margin-top: 0.5rem;
       text-align: center;
       @media (min-width: 768px) {
         display: none;
@@ -198,7 +315,7 @@ export default {
 
       .hamburger {
         height: 3px;
-        width: 25px;
+        width: 20px;
         margin: auto;
         background-color: #000000;
         position: relative;
@@ -208,66 +325,81 @@ export default {
         position: absolute;
         content: "";
         height: 3px;
-        width: 25px;
+        width: 20px;
         background-color: #000000;
       }
       .hamburger::after {
-        top: 9px;
+        top: 7px;
         left: 0;
       }
       .hamburger::before {
-        bottom: 9px;
+        bottom: 7px;
         left: 0;
       }
     }
   }
 }
-
-.navbar-toggle {
+.topList {
   display: none;
-}
-.navbar-toggle:checked ~ .navbar-expand {
-  position: absolute;
-  width: 100%;
-  display: block;
-  text-align: center;
-  z-index: 999;
-  background: #ffffff;
-  @media (min-width: 768px) {
-    position: static;
-  }
+  width: 70%;
+  margin: 0.5rem auto;
+  font-size: 1.2rem;
+  font-weight: 550;
+  color: #ccc;
+  justify-content: space-between;
 
-  .expand-item {
-    line-height: 60px;
-    width: 100%;
-    text-align: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: #676666;
+  @media (min-width: 768px) {
+    display: flex;
   }
-  .expand-item:hover {
-    color: red;
-  }
-  .category-group > .expand-item-wrapper {
-    width: 80%;
+}
+
+.navbar-expand-collapse {
+  transition: all 0.1s ease-out;
+  position: fixed;
+  display: flex;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  top: 0;
+
+  .expand-wrapper {
     margin: auto;
-    border-top: 1px solid #b9b0b0;
-    @media (min-width: 768px) {
-      border: none;
+    width: 70%;
+    min-height: 100%;
+    background: #fff;
+
+    .expand-item-wrapper {
+      padding: 1rem;
+      font-weight: 600;
+      .expand-item {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin: auto;
+        width: 100%;
+      }
+    }
+    .login,
+    .logout {
+      background: #f7f7f7;
     }
   }
-}
-
-.navbar-expand {
-  display: none;
+  .expand-bottom {
+    display: inline-block;
+    width: 30%;
+    height: 100%;
+    background: #747373;
+    opacity: 0.6;
+  }
 
   @media (min-width: 768px) {
-    display: block;
+    display: none;
     height: 60px;
     width: 70%;
     margin: auto;
 
-    .login {
+    .login,
+    .logout {
       display: none;
     }
     .category-group {
