@@ -14,9 +14,27 @@
       </ul>
     </div>
     <div class="main-wrapper">
-      <ProductSwiper 
+      <div class="product-wrapper">
+        <ProductSwiper 
       :products="products"
-      />
+      /><div class="product-wrapper">
+      <div class="title">最新商品 TOP 5</div>
+      <div
+        class="product-card"
+        v-for="(item, index) in products.slice(0, 5)"
+        :key="item.id"
+        @click.prevent.stop="$router.push(`/products/${item.id}`)"
+      >
+        <div class="product-card-number">0{{ index + 1 }}</div>
+        <div class="product-card-image">
+          <img :src="item.image" alt="" />
+        </div>
+        <div class="product-card-name">{{ item.name }}</div>
+      </div>
+    </div>
+
+      </div>
+      
       <div class="title">熱賣商品</div>
       <div class="cards-wrapper">
         <div class="product-card" v-for="product in products" :key="product.id">
@@ -127,7 +145,7 @@ export default {
     display: none;
     @media (min-width: 768px) {
       display: block;
-      width: 25%;
+      width: 20%;
       .title {
         margin-top: 1rem;
         padding-right: 1rem;

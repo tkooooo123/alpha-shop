@@ -1,43 +1,22 @@
 <template>
-  <div class="product-wrapper">
-    <div class="product-swiper">
-      <swiper ref="mySwiper" :options="swiperOptions">
-        <swiper-slide
-          class="swiper-slide"
-          v-for="(item, index) in products.slice(0, 5)"
-          :key="item.id"
-        >
-        <router-link :to="`/products/${item.id}`">
-            <img :src="item.image" alt="" />
-        </router-link>
-         
-          <div class="swiper-slide-name">
-            <div class="item-number">0{{ index + 1 }} |</div>
-            <div>
-              {{ item.name }}
-            </div>
-          </div>
-        </swiper-slide>
-
-        <div class="swiper-pagination" slot="pagination"></div>
-      </swiper>
-    </div>
-    <div class="product-wrapper">
-      <div class="title">最新商品 TOP 5</div>
-      <div
-        class="product-card"
-        v-for="(item, index) in products.slice(0, 5)"
-        :key="item.id"
-        @click.prevent.stop="$router.push(`/products/${item.id}`)"
-      >
-        <div class="product-card-number">0{{ index + 1 }}</div>
-        <div class="product-card-image">
-          <img :src="item.image" alt="" />
+  <swiper class="swipe-container" ref="mySwiper" :options="swiperOptions">
+    <swiper-slide
+      class="swiper-slide"
+      v-for="(item, index) in products.slice(0, 5)"
+      :key="item.id"
+    >
+      <router-link :to="`/products/${item.id}`">
+        <img :src="item.image" alt="" />
+      </router-link>
+      <div class="swiper-slide-name">
+        <div class="item-number">0{{ index + 1 }} |</div>
+        <div>
+          {{ item.name }}
         </div>
-        <div class="product-card-name">{{ item.name }}</div>
       </div>
-    </div>
-  </div>
+    </swiper-slide>
+    <div class="swiper-pagination" slot="pagination"></div>
+  </swiper>
 </template>
 
 <script>
@@ -56,6 +35,8 @@ export default {
           disableOnInteraction: false,
           delay: 2500,
         },
+        observer: true,
+        observeSlideChildren: true,
 
         preventLinksPropagation: false,
         pagination: {
@@ -73,31 +54,23 @@ export default {
       return this.$refs.mySwiper.$swiper;
     },
   },
-
-  methods: {
-    handleRouter() {
-      console.log(123);
-    },
-  },
 };
 </script>
 
 <style lang="scss">
 .product-wrapper {
-  width: 100%;
+  margin: 2rem;
 
   @media (min-width: 768px) {
     display: flex;
   }
 
-  .product-swiper {
+  .swipe-container {
     display: flex;
     height: 20rem;
-    width: 90%;
-    margin: 1rem auto;
-    z-index: -1;
-    img{
-        object-fit: contain;
+    width: 100%;
+    img {
+      object-fit: contain;
     }
 
     @media (min-width: 768px) {
@@ -106,19 +79,15 @@ export default {
     .swiper-slide {
       top: 0;
       left: 0;
-
-      height: 20rem;
+      height: 25rem;
       width: 100%;
-
+      cursor: pointer;
       @media (min-width: 768px) {
         width: 50%;
       }
-
-      cursor: pointer;
-     
       .swiper-slide-name {
         position: absolute;
-        top: 20%;
+        top: 30%;
         left: 20%;
         width: 10rem;
         padding: 0.5rem;
@@ -132,7 +101,6 @@ export default {
         }
       }
     }
-
     .swiper-pagination-bullet {
       width: 1rem;
       height: 1rem;
@@ -150,7 +118,6 @@ export default {
       width: 50%;
       margin-left: 1rem;
     }
-
     .title {
       margin-bottom: 1rem;
     }
@@ -172,13 +139,13 @@ export default {
       &-image {
         width: 20%;
         img {
-          height: 3.1rem;
+          height: 2.5rem;
+          margin-top: 0.4rem;
           object-fit: contain;
         }
       }
       &-name {
         margin: auto;
-
         width: 50%;
         text-align: start;
       }
