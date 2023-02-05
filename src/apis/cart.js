@@ -7,8 +7,8 @@ export default {
             headers: { Authorization: `Bearer ${getToken()}` }
         })
     },
-    getCart ({ cartId }) {
-        return apiHelper.get(`/carts?cartId=${cartId}`, {
+    getCart () {
+        return apiHelper.get(`/carts`, {
             headers: { Authorization: `Bearer ${getToken()}` }
         })
     },

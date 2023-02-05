@@ -4,6 +4,7 @@
       class="cartItem-card"
       v-for="cartItem in cartListItems"
       :key="cartItem.id"
+      :id="cartItem.id"
     >
       <img :src="cartItem.image" alt="" />
       <div class="cartItem-card-info">
@@ -44,7 +45,11 @@ export default {
       required: true,
     },
   },
-  inject: ['reload'],
+  data() {
+    return {
+      cartItems: this.cartListItems
+    }
+  },
   methods: {
     async addQuantity(cartItem) {
       try {
@@ -91,16 +96,24 @@ export default {
     },
     async deleteCartitem(cartItem) {
       try {
+        console.log(document.getElementById(cartItem.id))
         const response = await CartApi.deleteCartItem({
           id: cartItem.CartItem.id
         })
         console.log('response', response)
 
         const { data } =response
-          if(data.status === "error") {
+          if(response.status === "error") {
           throw new Error(data.message)
         }
-        this.reload()
+
+        this.$emit('delete-cartItem')
+        document.getElementById(cartItem.id).remove()
+
+        this.$bus.$emit('cartUpdate', {
+            cart: data.cart
+          })
+
 
       } catch (error) {
         Toast.fire({

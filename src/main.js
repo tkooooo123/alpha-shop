@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
+import './bus'
 
 Vue.use(VueAwesomeSwiper, /* { default options with global component } */)
 import 'swiper/css/swiper.css'
