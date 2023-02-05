@@ -115,7 +115,7 @@ export default {
     width: 90%;
     height: 20rem;
     @media (min-width: 768px) {
-      width: 50%;
+      width: 40%;
       margin-left: 1rem;
     }
     .title {

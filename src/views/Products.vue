@@ -186,11 +186,13 @@ export default {
 
       .product-card {
         width: 40%;
-        margin: 1rem ;
 
-        @media (min-width: 900px) {
-          width: 30%;
+        margin: 1rem ;
+        @media (min-width: 576px) {
+         width: 27%;
         }
+
+       
         @media (min-width: 1200px) {
           width: 20%;
         }
