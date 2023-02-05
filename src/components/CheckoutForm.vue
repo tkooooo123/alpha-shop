@@ -114,7 +114,7 @@ export default {
     },
     async handleSubmit(stepper) {
       try {
-        
+     
         const response = await OrderApi.postOrder({
           userId: this.userId,
           name: this.name,
@@ -128,19 +128,16 @@ export default {
         })
         console.log('response', response)
         const { data } = response
+      
         if (response.status === "error") {
           throw new Error(data.message);
         }
-        this.orderId = data.order.id
-        const gotOrderId = this.orderId
-        this.$emit('get-order-id', gotOrderId)
-
-
-        if (this.stepper > 1) {
-        this.stepper++;
-      }
-      stepper = this.stepper;
-      this.$emit("click-step-btn", stepper);
+        stepper++
+       console.log(stepper)
+       this.$emit("click-step-btn", stepper);
+       this.$bus.$emit('cartUpdate', {
+            cart: []
+          })
       } catch (error) {
         Toast.fire({
           icon:'error',

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-wrapper">
     <div class="cart-alert" v-if="carts.length === 0">
       <h2>您的購物車沒有商品！</h2>
       <router-link to="/products">
@@ -10,7 +10,9 @@
     <div class="main-container mt-5" v-else>
       <Stepper :stepper="stepper" />
       <div class="cart-wrapper">
-        <CartListItem :cartListItems="cartItems" :stepper="stepper" />
+        <CartListItem :cartListItems="cartItems" :stepper="stepper"
+        @delete-cartItem="handleDelete"
+        />
 
         <SubTotal
           :initial-stepper="stepper"
@@ -59,6 +61,7 @@ import CheckoutForm from "../components/CheckoutForm.vue";
 import CartApi from "../apis/cart";
 import OrderApi from "../apis/order";
 import { mapState } from "vuex";
+import { Toast } from "../utils/helpers";
 
 export default {
   components: {
@@ -88,15 +91,32 @@ export default {
           cartId: cartId,
         });
         console.log("response", response);
+        const { data } = response
 
-        const { data } = response;
-
+       if(response.status === 'error') {
+        throw new Error (data.message)
+       }
         console.log(data);
+        this.$bus.$emit('cartUpdate', {
+            cart: data.carts
+          })
         this.carts = data.carts;
         this.carts.forEach((item) => {
           this.cartItems.push(item.cartProducts);
         });
       } catch (error) {
+        if(this.isAuthenticated === false) {
+          Toast.fire({
+          icon: 'error',
+          title: '請先登入使用者'
+        })
+        } else {
+          Toast.fire({
+          icon: 'error',
+          title: '無法取得購物車資料，請稍後再試'
+        })
+        }
+        
         console.log(error);
       }
     },
@@ -124,6 +144,12 @@ export default {
     getOrderId(gotOrderId) {
       this.orderId = gotOrderId;
     },
+    handleDelete() {
+      this.cartItems = []
+      this.fetchCartListItems()
+
+      
+    }
   },
   computed: {
     totalPrice() {
@@ -168,9 +194,16 @@ export default {
   width: 90%;
   margin: 10rem 5%;
   .img-wrapper {
+    height: 10rem;
+    width: 10rem;
     margin: 3rem auto;
-    height: 15rem;
+    @media (min-width: 768px) {
+      height: 15rem;
     width: 15rem;
+
+    }
+    
+    
   }
   h1 {
     font-weight: 700;

@@ -14,8 +14,8 @@
         <span class="line"></span>
         <form @submit.prevent.stop="handleSubmit">
           <div class="product-quantity">
-          <div class="list-group">
-            <label class="title" for="quantity">數量</label>
+            <div class="list-group">
+              <label class="title" for="quantity">數量</label>
               <div class="minus-btn" @click.prevent.stop="subQuantity">-</div>
               <input
                 type="number"
@@ -25,12 +25,12 @@
                 :max="product.quantity"
                 :disabled="itemQuantity <= 1"
               />
-              <input type="hidden" name="productId" :value="product.id"/>
-              <input type="hidden" name="cartId" :value="cartId"/>
+              <input type="hidden" name="productId" :value="product.id" />
+              <input type="hidden" name="cartId" :value="cartId" />
               <div class="plus-btn" @click.prevent.stop="addQuantity">+</div>
+            </div>
+            <button type="submit" class="add-cart">加入購物車</button>
           </div>
-          <button type="submit" class="add-cart">加入購物車</button>
-        </div>
         </form>
       </div>
     </div>
@@ -39,21 +39,22 @@
 
 <script>
 import ProductsApi from "../apis/products";
-import CartApi from '../apis/cart'
-import { Toast } from '../utils/helpers'
+import CartApi from "../apis/cart";
+import { Toast } from "../utils/helpers";
+import { mapState } from "vuex";
 
 
 export default {
   data() {
     return {
       product: {},
-      cartId: '',
+      cartId: "",
       itemQuantity: 1,
     };
   },
   created() {
     const { id: productId } = this.$route.params;
-    this.cartId = localStorage.getItem('cartId')
+    this.cartId = localStorage.getItem("cartId");
     this.fetchProduct({ productId });
   },
   methods: {
@@ -61,7 +62,7 @@ export default {
       try {
         const response = await ProductsApi.getProduct({ productId });
         console.log("response", response);
-        const { data } = response
+        const { data } = response;
         if (response.status === "error") {
           throw new Error(data.message);
         }
@@ -69,9 +70,9 @@ export default {
         this.product = product;
       } catch (error) {
         Toast.fire({
-          icon:"error",
-          title: "無法取得產品資料，請稍後再試"
-        })
+          icon: "error",
+          title: "無法取得產品資料，請稍後再試",
+        });
         console.log(error);
       }
     },
@@ -81,41 +82,71 @@ export default {
       }
     },
     subQuantity() {
-      if(this.itemQuantity > this.product.quantity) {
-        this.itemQuantity = this.product.quantity
+      if (this.itemQuantity > this.product.quantity) {
+        this.itemQuantity = this.product.quantity;
       } else if (this.itemQuantity > 1) {
         this.itemQuantity--;
       }
     },
     async handleSubmit() {
       try {
-        
         const response = await CartApi.postCart({
           productId: this.product.id,
           quantity: this.itemQuantity,
-          cartId: this.cartId
-        })
-        console.log('response', response)
-        const { data } = response
+          cartId: this.cartId,
+        });
+        console.log("response", response);
+        const { data } = response;
+        this.$bus.$emit('cartUpdate', {
+            cart: data.cart
+          })
         if (response.status === "error") {
           throw new Error(data.message);
         }
         if (response.status === 200) {
           Toast.fire({
             icon: "success",
-            title: "商品成功加入購物車"
-          })
+            title: "商品成功加入購物車",
+          });
         }
-        
-        localStorage.setItem('cartId', data.getCartId)
+        this.getCart()
+
+        localStorage.setItem("cartId", data.getCartId);
       } catch (error) {
-        Toast.fire({
-          icon: 'error',
-          title: '無法加入購物車，請稍後再試'
-        })
-        console.log(error)
+        if (this.isAuthenticated === false) {
+          Toast.fire({
+            icon: "error",
+            title: "無法加入購物車，請先登入使用者",
+          });
+        } else {
+          Toast.fire({
+            icon: "error",
+            title: "無法加入購物車，請稍後再試",
+          });
+        }
+
+        console.log(error);
+      }
+    },
+    async getCart() {
+      try {
+        const response = await CartApi.getCart();
+        console.log("response", response);
+        const { data } = response;
+        if (response.status === "error") {
+          throw new Error(data.message);
+        }
+        console.log(data);
+        this.$bus.$emit('cartUpdate', {
+            cart: data.carts
+          })
+      } catch (error) {
+        console.log(error);
       }
     }
+  },
+  computed: {
+    ...mapState(["currentUser", "isAuthenticated"]),
   },
 };
 </script>
@@ -147,7 +178,7 @@ export default {
     .product-description {
       padding: 2rem 0;
     }
-    
+
     .line {
       position: absolute;
       left: 0.5rem;
@@ -181,15 +212,14 @@ export default {
           background: #ffffff;
         }
         input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-      }
+          -webkit-appearance: none;
+        }
         .quantity {
           width: 2rem;
           margin: auto;
           text-align: center;
           border-top: 1px solid #2a2a2a;
           border-bottom: 1px solid #2a2a2a;
-          
         }
       }
       .add-cart {

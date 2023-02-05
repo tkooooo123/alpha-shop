@@ -1,7 +1,7 @@
 <template>
   <div class="nav-wrapper">
     <div class="navbar">
-      <div class="nav-brand" >
+      <div class="nav-brand">
         <router-link to="/">
           <img
             class="logo-img"
@@ -50,9 +50,15 @@
           <i class="fas fa-search fa-lg">50%</i>
         </button>
 
-        <div class="cart-icon" >
-          <button @click.prevent.stop="$router.push('/cart')">
-            <i class="fa fa-shopping-cart fa-lg">80%</i>
+        <div class="cart-icon">
+          <button>
+            <router-link to="/cart">
+              <i class="fa fa-shopping-cart fa-lg">80%</i>
+              <div class="cart-item-wrapper" v-show="carts.length">
+              <span class="item-quantity" >{{carts.length }}</span>
+            </div>
+            </router-link>
+            
           </button>
         </div>
 
@@ -85,7 +91,7 @@
           </router-link>
         </div>
         <div class="expand-item-wrapper logout" v-else>
-          <a  href="" class="expand-item" @click="logout"> 登出 </a>
+          <a href="" class="expand-item" @click="logout"> 登出 </a>
         </div>
         <div class="category-group">
           <div class="expand-item-wrapper" @click.prevent.stop="handleChecked">
@@ -121,6 +127,8 @@
 import { mapState } from "vuex";
 import { Collapse } from "bootstrap";
 import ProductsApi from "../apis/products";
+import CartApi from "../apis/cart";
+
 
 export default {
   data() {
@@ -128,18 +136,43 @@ export default {
       keyword: "",
       collapse: null,
       categories: [],
+      carts: [],
+   
     };
   },
+  created() {
+   
+    this.$bus.$on('cartUpdate', event => {
+      this.carts = event.cart
+    })
+    
+  },
   mounted() {
+    this.fetchCart();
     this.fetchCategories();
   },
   methods: {
     async fetchCategories() {
       try {
-        console.log("123");
         const response = await ProductsApi.getCategories();
         console.log("response", response);
         this.categories = response.data.categories;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async fetchCart() {
+      try {
+        const response = await CartApi.getCart();
+        console.log("response", response);
+        const { data } = response;
+        if (response.status === "error") {
+          throw new Error(data.message);
+        }
+        console.log(data);
+        this.$bus.$emit('cartUpdate', {
+            cart: data.carts
+          })
       } catch (error) {
         console.log(error);
       }
@@ -151,10 +184,11 @@ export default {
         this.isChecked = true;
       }
     },
-   
+
     logout() {
       this.$store.commit("revokeAuthentication");
       this.$router.push("/signin");
+      
     },
     searchKeyword() {
       console.log(this.keyword);
@@ -175,10 +209,10 @@ export default {
   },
   watch: {
     $route() {
-      if(this.collapse) {
+      if (this.collapse) {
         this.collapse.hide();
       }
- 
+
       this.keyword = "";
     },
   },
@@ -303,8 +337,23 @@ export default {
       }
     }
     .cart-icon {
+      position: relative;
       height: 100%;
       text-align: center;
+      .cart-item-wrapper {
+        .item-quantity {
+          position: absolute;
+          top: 0;
+          background-color: #f16c5d;
+          color: #ffffff;
+          border-radius: 50%;
+          width: 1rem;
+          height: 1rem;
+          line-height: 1rem;
+          vertical-align: middle;
+          font-size: 0.6rem;
+        }
+      }
     }
 
     .navbar-toggle-label {
@@ -371,7 +420,6 @@ export default {
     width: 70%;
     min-height: 100%;
     background: #fff;
-  
 
     .expand-item-wrapper {
       padding: 1rem;
