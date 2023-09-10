@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["about"],{d7a9:function(t,n,a){"use strict";a.r(n);var s=function(){var t=this;t._self._c;return t._m(0)},u=[function(){var t=this,n=t._self._c;return n("div",{staticClass:"about"},[n("h1",[t._v("This is an about page")])])}],i=a("2877"),e={},o=Object(i["a"])(e,s,u,!1,null,null,null);n["default"]=o.exports}}]);
+//# sourceMappingURL=about.db2ab91a.js.map
